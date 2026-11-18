@@ -1,82 +1,96 @@
-body {
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #f0f0f0;
-    font-family: Arial, sans-serif;
+const mario = document.getElementById('mario');
+const obstacle = document.getElementById('obstacle');
+const scoreElement = document.getElementById('score');
+const gameOverElement = document.getElementById('game-over');
+const finalScoreElement = document.getElementById('final-score');
+const restartBtn = document.getElementById('restart-btn');
+
+let score = 0;
+let isGameOver = false;
+let isJumping = false;
+
+// Переменные для движения препятствия
+let obstacleLeft = 800; // Стартовая позиция (ширина экрана)
+let obstacleSpeed = 5;  // Скорость движения (пикселей за кадр)
+
+// --- ЛОГИКА ПРЫЖКА ---
+function jump() {
+    if (isGameOver || isJumping) return; 
+    
+    isJumping = true;
+    mario.classList.add('jump');
+    
+    // Через 500 мс (время анимации) возвращаем Марио в исходное состояние
+    setTimeout(() => {
+        mario.classList.remove('jump');
+        isJumping = false;
+    }, 500);
 }
 
-.game-container {
-    width: 800px;
-    height: 400px;
-    background: linear-gradient(to bottom, #87CEEB 80%, #8B4513 20%); /* Небо и земля */
-    position: relative;
-    overflow: hidden; /* Скрываем все, что вылетает за пределы */
-    border: 2px solid #333;
-    border-radius: 8px;
+document.addEventListener('keydown', (event) => {
+    if (event.code === 'Space' || event.code === 'ArrowUp') {
+        event.preventDefault(); // Чтобы страница не прокручивалась при нажатии пробела
+        jump();
+    }
+});
+
+// --- ИГРОВОЙ ЦИКЛ (Выполняется 60 раз в секунду) ---
+function gameLoop() {
+    if (isGameOver) return;
+
+    // 1. Двигаем препятствие влево
+    obstacleLeft -= obstacleSpeed;
+    obstacle.style.left = obstacleLeft + 'px';
+
+    // 2. Если препятствие ушло за левый край, возвращаем его вправо и начисляем очки
+    if (obstacleLeft < -30) {
+        obstacleLeft = 800;
+        score++;
+        scoreElement.textContent = 'Счет: ' + score;
+        // Немного ускоряем игру со временем (сложность)
+        if (obstacleSpeed < 12) obstacleSpeed += 0.2; 
+    }
+
+    // 3. Проверка на столкновение
+    // Получаем текущую высоту Марио (находится ли он в прыжке)
+    // Если у него нет класса 'jump', значит он на земле (bottom = 80px)
+    const isMarioOnGround = !mario.classList.contains('jump');
+    
+    // Если Марио на земле и препятствие находится в зоне его удара (от 50 до 90 пикселей)
+    if (isMarioOnGround && obstacleLeft > 50 && obstacleLeft < 90) {
+        gameOver();
+        return;
+    }
+
+    // Запрашиваем следующий кадр
+    requestAnimationFrame(gameLoop);
 }
 
-#mario {
-    width: 40px;
-    height: 40px;
-    background-color: #E52521; /* Красный цвет */
-    position: absolute;
-    bottom: 80px; /* Высота земли */
-    left: 50px;
-    border-radius: 5px;
-    transition: bottom 0.1s;
+// --- КОНЕЦ ИГРЫ ---
+function gameOver() {
+    isGameOver = true;
+    finalScoreElement.textContent = score;
+    gameOverElement.style.display = 'block'; // Показываем окно
 }
 
-/* Класс для анимации прыжка */
-.jump {
-    animation: jump-animation 0.5s linear;
-}
+// --- ПЕРЕЗАПУСК ИГРЫ ---
+restartBtn.addEventListener('click', () => {
+    // Сбрасываем переменные
+    score = 0;
+    isGameOver = false;
+    isJumping = false;
+    obstacleSpeed = 5;
+    obstacleLeft = 800;
+    
+    // Обновляем интерфейс
+    scoreElement.textContent = 'Счет: 0';
+    gameOverElement.style.display = 'none';
+    mario.classList.remove('jump');
+    obstacle.style.left = '800px';
+    
+    // Запускаем цикл заново
+    requestAnimationFrame(gameLoop);
+});
 
-@keyframes jump-animation {
-    0% { bottom: 80px; }
-    50% { bottom: 220px; } /* Высота прыжка */
-    100% { bottom: 80px; }
-}
-
-#obstacle {
-    width: 30px;
-    height: 40px;
-    background-color: #4CAF50; /* Зеленый "кактус" */
-    position: absolute;
-    bottom: 80px;
-    left: 800px; /* Начинает движение из-за правого края */
-    animation: move-obstacle 2s infinite linear;
-}
-
-@keyframes move-obstacle {
-    0% { left: 800px; }
-    100% { left: -30px; }
-}
-
-#score {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
-    z-index: 10;
-}
-
-#game-over {
-    display: none;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    font-size: 24px;
-    z-index: 20;
-}
+// Запуск игры при загрузке страницы
+requestAnimationFrame(gameLoop);

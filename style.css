@@ -1,0 +1,82 @@
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
+}
+
+.game-container {
+    width: 800px;
+    height: 400px;
+    background: linear-gradient(to bottom, #87CEEB 80%, #8B4513 20%); /* Небо и земля */
+    position: relative;
+    overflow: hidden; /* Скрываем все, что вылетает за пределы */
+    border: 2px solid #333;
+    border-radius: 8px;
+}
+
+#mario {
+    width: 40px;
+    height: 40px;
+    background-color: #E52521; /* Красный цвет */
+    position: absolute;
+    bottom: 80px; /* Высота земли */
+    left: 50px;
+    border-radius: 5px;
+    transition: bottom 0.1s;
+}
+
+/* Класс для анимации прыжка */
+.jump {
+    animation: jump-animation 0.5s linear;
+}
+
+@keyframes jump-animation {
+    0% { bottom: 80px; }
+    50% { bottom: 220px; } /* Высота прыжка */
+    100% { bottom: 80px; }
+}
+
+#obstacle {
+    width: 30px;
+    height: 40px;
+    background-color: #4CAF50; /* Зеленый "кактус" */
+    position: absolute;
+    bottom: 80px;
+    left: 800px; /* Начинает движение из-за правого края */
+    animation: move-obstacle 2s infinite linear;
+}
+
+@keyframes move-obstacle {
+    0% { left: 800px; }
+    100% { left: -30px; }
+}
+
+#score {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    z-index: 10;
+}
+
+#game-over {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 24px;
+    z-index: 20;
+}

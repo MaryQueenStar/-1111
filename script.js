@@ -1,56 +1,96 @@
-const mario = document.getElementById('mario');
-const obstacle = document.getElementById('obstacle');
-const scoreElement = document.getElementById('score');
-const gameOverElement = document.getElementById('game-over');
-
-let score = 0;
-let isGameOver = false;
-
-// Функция прыжка
-function jump() {
-    if (isGameOver) return; // Если игра окончена, не прыгаем
-    if (!mario.classList.contains('jump')) {
-        mario.classList.add('jump');
-        // Убираем класс прыжка через 500мс (время анимации), чтобы можно было прыгать снова
-        setTimeout(() => {
-            mario.classList.remove('jump');
-        }, 500);
-    }
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
 }
 
-// Слушатель нажатий клавиш
-document.addEventListener('keydown', (event) => {
-    if (event.code === 'Space' || event.code === 'ArrowUp') {
-        jump();
-    }
-});
+.game-container {
+    width: 800px;
+    height: 400px;
+    background: linear-gradient(to bottom, #87CEEB 80%, #8B4513 20%);
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #333;
+    border-radius: 8px;
+}
 
-// Логика игры (проверка столкновений и счет)
-setInterval(() => {
-    if (isGameOver) return;
+#mario {
+    width: 40px;
+    height: 40px;
+    background-color: #E52521;
+    position: absolute;
+    bottom: 80px;
+    left: 50px;
+    border-radius: 5px;
+}
 
-    // Получаем координаты Марио и препятствия
-    const marioBottom = parseInt(window.getComputedStyle(mario).getPropertyValue('bottom'));
-    const obstacleLeft = parseInt(window.getComputedStyle(obstacle).getPropertyValue('left'));
+/* Класс для анимации прыжка */
+.jump {
+    animation: jump-animation 0.5s linear;
+}
 
-    // Проверка на столкновение (если Марио низко и препятствие близко)
-    if (obstacleLeft > 50 && obstacleLeft < 90 && marioBottom < 100) {
-        isGameOver = true;
-        gameOverElement.style.display = 'block';
-        obstacle.style.animationPlayState = 'paused'; // Останавливаем препятствие
-    }
+@keyframes jump-animation {
+    0% { bottom: 80px; }
+    50% { bottom: 220px; }
+    100% { bottom: 80px; }
+}
 
-    // Подсчет очков
-    if (obstacleLeft < -30) { // Если препятствие ушло за экран (прошло насквозь)
-        // Сбрасываем позицию (имитация бесконечного уровня)
-        // Но так как анимация CSS бесконечная, нам нужно просто считать очки
-    }
-}, 10);
+/* Препятствие теперь двигается через JS, поэтому анимации CSS тут нет */
+#obstacle {
+    width: 30px;
+    height: 40px;
+    background-color: #4CAF50;
+    position: absolute;
+    bottom: 80px;
+    left: 800px; /* Стартовая позиция за экраном */
+}
 
-// Простой счетчик очков (увеличивается каждые 100мс)
-setInterval(() => {
-    if (!isGameOver) {
-        score++;
-        scoreElement.textContent = 'Счет: ' + score;
-    }
-}, 500);
+#score {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    z-index: 10;
+}
+
+/* Окно проигрыша */
+#game-over {
+    display: none; /* Изначально скрыто */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 24px;
+    z-index: 20;
+    width: 300px;
+}
+
+/* Стили для кнопки */
+#restart-btn {
+    margin-top: 15px;
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: #E52521;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+#restart-btn:hover {
+    background-color: #b81b19;
+}
